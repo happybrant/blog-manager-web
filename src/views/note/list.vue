@@ -4,7 +4,7 @@
       <el-col :span="8" class="list">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <el-input v-model="listQuery.title" placeholder="请输入搜索内容" @keyup.native="getNoteListPager">
+            <el-input v-model="listQuery.title" placeholder="请输入搜索内容" @keypress.native="getNoteListPager">
               <i slot="prefix" class="el-input__icon el-icon-search cursor-pointer" />
             </el-input>
           </div>

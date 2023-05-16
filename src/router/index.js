@@ -160,23 +160,32 @@ export const asyncRoutes = [
     component: Layout,
     redirect: '/user/index',
     meta: {
-      title: '用户管理',
+      title: '系统管理',
       icon: 'peoples'
     },
-    children: [{
-      path: '/user/index',
-      name: '用户管理',
-      component: () => import('@/views/user/list'),
-      meta: { title: '用户管理', icon: 'people', roles: ['admin'] // you can set roles in root nav
+    children: [
+      {
+        path: '/user/index',
+        name: '用户管理',
+        component: () => import('@/views/user/list'),
+        meta: { title: '用户管理', icon: 'people', roles: ['admin'] // you can set roles in root nav
+        }
+      },
+      {
+        path: '/log/index',
+        name: '日志监控',
+        component: () => import('@/views/log/logList'),
+        meta: { title: '日志监控', icon: 'el-icon-document', roles: ['admin'] // you can set roles in root nav
+        }
       }
-    },
-    {
-      path: '/user/personal',
-      name: '迭代计划',
-      component: () => import('@/views/user/plan'),
-      meta: { title: '迭代计划', icon: 'guide', roles: ['admin'] // you can set roles in root nav
-      }
-    }]
+    // {
+    //   path: '/user/personal',
+    //   name: '迭代计划',
+    //   component: () => import('@/views/user/plan'),
+    //   meta: { title: '迭代计划', icon: 'guide', roles: ['admin'] // you can set roles in root nav
+    //   }
+    // }
+    ]
   },
   // 404 page must be placed at the end !!!
 

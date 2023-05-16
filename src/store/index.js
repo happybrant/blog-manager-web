@@ -5,6 +5,7 @@ import album from './modules/album'
 import app from './modules/app'
 import blog from './modules/blog'
 import home from './modules/home'
+import log from './modules/log'
 import note from './modules/note'
 import permission from './modules/permission'
 import settings from './modules/settings'
@@ -23,7 +24,8 @@ const store = new Vuex.Store({
     album,
     task,
     note,
-    permission
+    permission,
+    log
   },
   getters
 })
