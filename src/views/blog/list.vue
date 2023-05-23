@@ -88,6 +88,12 @@
         </template>
       </el-table-column>
 
+      <el-table-column width="180px" align="center" label="作者">
+        <template slot-scope="scope">
+          <span>{{ scope.row.createUsername }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column align="center" label="操作" width="120">
         <template slot-scope="scope">
           <router-link :to="{path:'/blog/edit',query:{id:scope.row.id}}">

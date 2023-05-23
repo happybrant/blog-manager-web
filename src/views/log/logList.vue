@@ -50,7 +50,7 @@
       <el-table-column type="selection" width="60" align="center" />
       <el-table-column align="center" label="序号" width="65" type="index" :index="indexAdd" />
 
-      <el-table-column align="center" label="操作描述">
+      <el-table-column width="180px" align="center" label="操作描述">
         <template slot-scope="{row}">
           <span>{{ row.description }}</span>
         </template>
@@ -78,6 +78,11 @@
       <el-table-column align="center" label="请求参数" :show-overflow-tooltip="true">
         <template slot-scope="{row}">
           <span>{{ row.params }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="80px" align="center" label="请求用户">
+        <template slot-scope="{row}">
+          <span>{{ row.username }}</span>
         </template>
       </el-table-column>
       <el-table-column width="180px" align="center" label="请求时间">

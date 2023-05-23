@@ -161,7 +161,8 @@ export const asyncRoutes = [
     redirect: '/user/index',
     meta: {
       title: '系统管理',
-      icon: 'peoples'
+      icon: 'peoples',
+      roles: ['admin']
     },
     children: [
       {
