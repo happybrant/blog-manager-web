@@ -64,20 +64,25 @@
               <span>博客设置</span>
             </div>
           </div>
-          <el-form ref="form" label-width="80px" :inline="true" class="demo-form-inline">
-            <el-form-item label="展示名">
+          <el-form ref="formMain" label-width="80px" :model="form" :inline="true" class="demo-form-inline" :rules="formRules">
+            <el-form-item label="展示名" prop="name">
               <el-input v-model="form.name" />
             </el-form-item>
-            <el-form-item label="职业">
+            <el-form-item label="职业" prop="title">
               <el-input v-model="form.title" />
             </el-form-item>
-            <el-form-item label="现居地">
+            <el-form-item label="现居地" prop="location">
               <el-input v-model="form.location" />
             </el-form-item>
-            <el-form-item label="个人路由">
-              <el-input v-model="form.routing">
-                <template slot="prepend">http://localhost:8080/#/</template>
-                <el-button slot="append" icon="el-icon-position" title="跳转到前端页面" @click="jump" />
+            <el-form-item v-if="form.fullRouting" label="个人路由" prop="fullRouting">
+              <el-input v-model="form.fullRouting" :disabled="true" style="width:300px">
+                <el-button slot="append" icon="el-icon-position" title="跳转到个人博客首页" @click="jump" />
+              </el-input>
+              <el-button style="margin-left:10px" type="primary" icon="el-icon-edit" title="修改路由" @click="openEditRoutingDialog" />
+            </el-form-item>
+            <el-form-item v-else label="个人路由" prop="routing">
+              <el-input v-model="form.routing" style="width:300px">
+                <template slot="prepend">{{ frontApi }}</template>
               </el-input>
             </el-form-item>
             <el-form-item label="展示控件">
@@ -89,7 +94,7 @@
                 <el-checkbox label="链接" name="link" />
               </el-checkbox-group>
             </el-form-item>
-            <el-form-item label="头像" prop="imageUrl" style="display:block">
+            <el-form-item label="头像" prop="avatarUrl" style="display:block">
               <el-upload
                 ref="upload"
                 class="avatar-uploader"
@@ -105,7 +110,7 @@
               </el-upload>
             </el-form-item>
             <el-form-item style="display:block">
-              <el-button type="primary" @click="onSubmit">保存</el-button>
+              <el-button type="primary" :loading="isLoading" @click="onSubmit">保存</el-button>
             </el-form-item>
           </el-form>
         </el-card>
@@ -113,6 +118,7 @@
       </el-col>
     </el-row>
     <EditCategoryForm ref="editCategoryForm" />
+    <EditRoutingForm ref="editRoutingForm" />
   </div>
 
 </template>
@@ -120,14 +126,16 @@
 <script>
 import TreeTable from 'vue-table-with-tree-grid'
 import { parseTime } from '@/utils/index'
-import EditCategoryForm from '@/views/blog/editCategory'
+import EditCategoryForm from '@/views/setting/editCategory'
+import EditRoutingForm from '@/views/setting/editRouting'
 export default {
 
   name: 'DragTable',
-  components: { TreeTable, EditCategoryForm },
+  components: { TreeTable, EditCategoryForm, EditRoutingForm },
   data() {
     return {
       categoryList: [],
+      isLoading: false,
       columns: [
         {
           label: '名称',
@@ -174,10 +182,20 @@ export default {
         location: '',
         controls: [],
         avatarUrl: '',
-        routing: ''
+        routing: '',
+        fullRouting: '' // 完整路径
       },
-      uploadPath: process.env.VUE_APP_BASE_API + '/file/upload'
+      uploadPath: process.env.VUE_APP_BASE_API + '/file/upload',
+      frontApi: process.env.VUE_APP_FRONT_API,
+      formRules: {
+        name: [{ required: true, message: '展示名不能为空', trigger: 'onblur' }],
+        title: [{ required: true, message: '职业不能为空', trigger: 'onblur' }],
+        location: [{ required: true, message: '展示名不能为空', trigger: 'onblur' }],
+        routing: [{ required: true, message: '路由不能为空', trigger: 'onblur' }],
+        fullRouting: [{ required: true, message: '路由不能为空', trigger: 'onblur' }],
+        avatarUrl: [{ required: true, message: '请上传头像', trigger: 'onblur' }]
 
+      }
     }
   },
   mounted() {
@@ -289,36 +307,6 @@ export default {
       siblings[index + 1] = curNode
       siblings[index] = nextNode
       this.updateCategories(nodeList)
-    },
-    updateCategories(parameters) {
-      const _this = this
-      _this.$store
-        .dispatch('blog/updateCategory', parameters)
-        .then(function(response) {
-          if (response != null && response.code === 200) {
-            _this.$message({ message: '操作成功', type: 'success', showClose: true })
-            _this.dialogFormVisible = false
-          } else {
-            _this.$message({ message: response == null || response.message == null || response.message === '' ? '操作失败' : response.message, type: 'error', showClose: true })
-          }
-        })
-        .catch(function(error) {
-          _this.$message({ message: error.msg || 'Has Error', type: 'error', showClose: true })
-        })
-    },
-    openEditDialog(action, row) {
-      this.$refs.editCategoryForm.show(action, row)
-    },
-    handleSelectedEditRow() {
-      const rows = this.$refs.dragTable.selection
-
-      if (rows.length === 0) {
-        this.$alert('请选择需要编辑的行', '提示', { type: 'warning' })
-      } else if (rows.length > 1) {
-        this.$alert('请选择一行', '提示', { type: 'warning' })
-      } else {
-        this.openEditDialog('edit', rows[0])
-      }
     },
 
     // 点击删除按钮
@@ -434,6 +422,22 @@ export default {
       this.inputVisible = false
       this.inputValue = ''
     },
+
+    // 点击保存按钮
+    onSubmit() {
+      this.$refs.formMain.validate(valid => {
+        if (valid) {
+          this.isLoading = true
+          if (this.form.id && this.form.avatarUrl.indexOf(9000) > 0) {
+            // 表明是更新操作且图片没有更新,不需要上传图片
+            this.updateSetting()
+          } else {
+            this.$refs.upload.submit()
+          }
+        }
+      })
+    },
+    // 获取当前登录用户的设置
     getSettingByCurrentUser() {
       const _this = this
       _this.$store
@@ -441,25 +445,13 @@ export default {
         .then(function(response) {
           if (response != null && response.code === 200 && response.data != null) {
             _this.form = response.data
+            _this.form.fullRouting = _this.frontApi + _this.form.routing
           }
         })
         .catch(function(error) {
           console.log(error)
           _this.$message({ message: error.msg || 'Has Error', type: 'error', showClose: true })
         })
-    },
-    // 点击保存按钮
-    onSubmit() {
-      if (!this.form.avatarUrl) {
-        this.$message.error('请先选择图片!')
-        return
-      }
-      if (this.form.id && this.form.avatarUrl.indexOf(9000) > 0) {
-        // 表明是更新操作且图片没有更新,不需要上传图片
-        this.updateSetting()
-      } else {
-        this.$refs.upload.submit()
-      }
     },
     // 添加设置
     addSetting() {
@@ -474,7 +466,10 @@ export default {
       _this.$store
         .dispatch('blog/addSetting', parameters)
         .then(function(response) {
-          if (response != null && response.code === 200 && response.data.length > 0) {
+          if (response != null && response.code === 200 && response.data != null) {
+            _this.form.fullRouting = _this.frontApi + _this.form.routing
+            _this.form.id = response.data
+            _this.isLoading = false
             _this.$message({ message: '操作成功', type: 'success', showClose: true })
           } else {
             _this.$message({ message: '操作失败', type: 'error', showClose: true })
@@ -495,11 +490,11 @@ export default {
       parameters.location = this.form.location
       parameters.controls = this.form.controls
       parameters.avatarUrl = this.form.avatarUrl
-      parameters.routing = this.form.routing
       _this.$store
         .dispatch('blog/updateSetting', parameters)
         .then(function(response) {
           if (response != null && response.code === 200 && response.data.length > 0) {
+            _this.isLoading = false
             _this.$message({ message: '操作成功', type: 'success', showClose: true })
           } else {
             _this.$message({ message: '操作失败', type: 'error', showClose: true })
@@ -511,6 +506,10 @@ export default {
     },
     // 文件选取时触发此方法
     handleCoverSelect(file, fileList) {
+      // 文件上传时也会触发该方法
+      if (file.response != null) {
+        return
+      }
       const types = ['image/jpeg', 'image/png']
       const isJPG = types.indexOf(file.raw.type) > -1
       const isLt50M = file.size / 1024 / 1024 < 50
@@ -540,7 +539,11 @@ export default {
     },
     jump() {
       const tempwindow = window.open('_blank')
-      tempwindow.location.href = 'http://localhost:8080/#/' + this.form.routing + '/articles'
+      tempwindow.location.href = this.frontApi + this.form.routing + '/articles'
+    },
+    // 打开路由修改界面
+    openEditRoutingDialog() {
+      this.$refs.editRoutingForm.show(this.form)
     }
   }
 }
