@@ -63,7 +63,6 @@ const actions = {
         if (!data) {
           return reject('Verification failed, please Login again.')
         }
-
         commit('SET_NAME', data.displayName)
         commit('SET_AVATAR', data.headerUrl)
         const roles = [data.type === 1 ? 'admin' : 'user']

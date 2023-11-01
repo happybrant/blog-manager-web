@@ -3,7 +3,7 @@
     <div class="body">
       <el-form ref="formMain" label-width="120px">
         <el-row>
-          <el-col :span="12">
+          <el-col>
             <el-upload
               ref="upload"
               class="avatar-uploader"

@@ -1,6 +1,22 @@
 <template>
   <div class="createPost-container">
     <el-form ref="postForm" :model="postForm" class="form-container">
+      <sticky :z-index="10" :class-name="'sub-navbar ' + publishStatus">
+        <!-- <CategoryDropdown v-model="postForm.categoryId" required />
+        <TagDropdown v-model="postForm.tagIds" style="margin-left: 10px;" /> -->
+        <el-select v-model="postForm.categoryId" placeholder="请选择笔记分类">
+          <el-option
+            v-for="item in categoryList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+        <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="manualSave">
+          立即保存
+        </el-button>
+        <el-button v-if="selectedId" style="margin-left: 10px;" type="primary" @click="reset()">新建</el-button>
+      </sticky>
 
       <div class="createPost-main-container">
         <el-row>
@@ -29,6 +45,14 @@
               <i class="el-icon-circle-check" />
               <span style="margin-left:3px" v-text="tip" />
             </span>
+            <div style="float:right">
+              <el-switch
+                v-model="postForm.topFlag"
+                active-text="置顶"
+                inactive-text="不置顶"
+              />
+            </div>
+
             <mavon-editor
               ref="md"
               v-model="postForm.originContent"
@@ -45,23 +69,28 @@
 
       </div>
     </el-form>
+    <EditCategoryForm ref="editCategoryForm" />
   </div>
 </template>
 
 <script>
 import MDinput from '@/components/MDinput'
 import axios from 'axios'
+import Sticky from '@/components/Sticky' // 粘性header组件
+import EditCategoryForm from '@/views/setting/editCategory'
 
 const defaultForm = {
   title: '', // 文章题目
   content: '', // 文章HTML内容
   originContent: '', // 文章原始内容,即markdown内容
-  id: undefined
+  id: undefined,
+  categoryId: '',
+  topFlag: false
 }
 export default {
   name: 'MarkdownDemo',
   components: {
-    MDinput },
+    MDinput, Sticky, EditCategoryForm },
   props: {
     isEdit: {
       type: Boolean,
@@ -77,7 +106,9 @@ export default {
       imgFile: [],
       height: '540px',
       timeID: null,
-      tip: ''
+      tip: '',
+      categoryList: [],
+      topFlag: false
     }
   },
   computed: {
@@ -86,12 +117,22 @@ export default {
     }
   },
   watch: {
-    postForm: {
-      deep: true,
+    'postForm.title': {
       immediate: false,
-      handler: function(val, oldVal) {
+      handler: function(newVal, oldVal) {
         // 5秒种后自动保存
-        this.autoSave()
+        if (this.postForm.title !== '' || this.postForm.content !== '') {
+          this.autoSave()
+        }
+      }
+    },
+    'postForm.content': {
+      immediate: false,
+      handler: function(newVal, oldVal) {
+        // 5秒种后自动保存
+        if (this.postForm.title !== '' || this.postForm.content !== '') {
+          this.autoSave()
+        }
       }
     }
   },
@@ -101,20 +142,36 @@ export default {
       this.publishStatus = 'published'
       this.getNoteById()
     }
+    this.getCategoryList()
   },
   beforeDestroy() {
     // 移除可能残余的定时器
     clearTimeout(this.timeID)
   },
   methods: {
-    autoSave(val, oldVal) {
+    // 自动保存
+    autoSave() {
       if (this.timeID) {
         clearTimeout(this.timeID) //   清除定时器
       }
       this.timeID = setTimeout(() => { //   定时器
+        this.tip = '自动保存中...'
         this.submitForm()
       }, 5000) //   操作结束后5秒  发送axios请求
     },
+    // 手动保存
+    manualSave() {
+      if (this.timeID) {
+        clearTimeout(this.timeID) //   清除定时器
+      }
+      if (this.postForm.title === '' && this.postForm.content === '') {
+        this.$message({ message: '标题和内容不能全部为空', type: 'warning', showClose: true })
+        return
+      }
+      this.tip = '保存中...'
+      this.submitForm('manualSave')
+    },
+
     // 实时监听内容
     $change(value, render) {
       this.postForm.content = render
@@ -133,21 +190,46 @@ export default {
           } else {
             _this.postForm = null
           }
-          _this.listLoading = false
           _this.$nextTick(() => {
             clearTimeout(_this.timeID)
           })
         })
         .catch(function(error) {
           _this.$message({ message: error.msg || 'Has Error', type: 'error', showClose: true })
-          _this.listLoading = false
         })
     },
-    submitForm() {
+    getCategoryList() {
       const _this = this
-      _this.tip = '自动保存中...'
+      _this.$store
+        .dispatch('note/getNoteCategoryList')
+        .then(function(response) {
+          if (
+            response != null &&
+            response.code === 200 &&
+            response.data.length > 0
+          ) {
+            _this.categoryList = response.data
+          } else {
+            _this.categoryList = []
+          }
+        })
+        .catch(function(error) {
+          _this.$message({
+            message: error.msg || 'Has Error',
+            type: 'error',
+            showClose: true
+          })
+        })
+    },
+    submitForm(type) {
+      const _this = this
       if (_this.postForm.title === '') {
         _this.postForm.title = '无标题笔记'
+      }
+      if (_this.postForm.categoryId === '') {
+        // 设置为默认分类
+        _this.category = _this.categoryList.find(item => item.code === 'default')
+        _this.postForm.categoryId = _this.category.id
       }
       _this.loading = true
       let path = 'note/addNote'
@@ -165,10 +247,18 @@ export default {
               _this.selectedId = response.data
               _this.postForm.id = response.data
             }
-
+            _this.publishStatus = 'published'
             _this.$nextTick(() => {
               clearTimeout(_this.timeID)
             })
+            if (type === 'manualSave') {
+              _this.$notify({
+                title: '成功',
+                message: '笔记手动保存成功',
+                type: 'success',
+                duration: 2000
+              })
+            }
           } else {
             _this.$notify({
               title: '失败',
@@ -192,6 +282,7 @@ export default {
     reset() {
       this.postForm = Object.assign({}, defaultForm)
       this.selectedId = ''
+      this.tip = ''
       this.publishStatus = 'draft'
       this.$router.push('/note/edit')
     },
@@ -227,6 +318,9 @@ export default {
       } else {
         this.height = '100%'
       }
+    },
+    openEditCategoryDialog() {
+      this.$refs.editCategoryForm.show()
     }
   }
 }
@@ -239,7 +333,7 @@ export default {
   position: relative;
 
   .createPost-main-container {
-    padding: 40px 45px 20px 30px;
+    padding: 40px 30px 20px 30px;
 
     .postInfo-container {
       position: relative;

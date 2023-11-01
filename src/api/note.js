@@ -48,3 +48,49 @@ export function deleteNote(data) {
   })
 }
 
+// 获取笔记分类列表
+export function getNoteCategoryList() {
+  return request({
+    url: '/note/category/list',
+    method: 'get',
+    withCredentials: false
+  })
+}
+// 获取笔记分类分页列表
+export function getNoteCategoryListPager(data) {
+  return request({
+    url: '/note/category/listPager',
+    method: 'post',
+    data: data,
+    withCredentials: false
+  })
+}
+// 新增笔记分类
+export function addNoteCategory(data) {
+  return request({
+    url: '/note/category/add',
+    method: 'post',
+    data: data,
+    withCredentials: false
+  })
+}
+
+// 更新笔记分类
+export function updateNoteCategory(data) {
+  return request({
+    url: '/note/category/update',
+    method: 'post',
+    data: data,
+    withCredentials: false
+  })
+}
+
+// 删除笔记分类
+export function deleteNoteCategory(data) {
+  return request({
+    url: '/note/category/delete',
+    method: 'delete',
+    data: data,
+    withCredentials: false
+  })
+}

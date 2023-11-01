@@ -46,12 +46,14 @@ export const constantRoutes = [
     path: '/',
     component: Layout,
     redirect: '/dashboard',
-    children: [{
-      path: 'dashboard',
-      name: 'Dashboard',
-      component: () => import('@/views/dashboard/index'),
-      meta: { title: '首页', icon: 'dashboard' }
-    }]
+    children: [
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('@/views/dashboard/index'),
+        meta: { title: '首页', icon: 'dashboard' }
+      }
+    ]
   },
 
   {
@@ -72,30 +74,6 @@ export const constantRoutes = [
         name: '写博客',
         component: () => import('@/views/blog/edit'),
         meta: { title: '写博客', icon: 'el-icon-edit-outline' }
-      }
-    ]
-  },
-  {
-    path: '/note',
-    component: Layout,
-    redirect: '/note/index',
-    name: '笔记',
-    meta: {
-      title: '笔记',
-      icon: 'form'
-    },
-    children: [
-      {
-        path: '/note/list',
-        name: '笔记列表',
-        component: () => import('@/views/note/list'),
-        meta: { title: '笔记列表', icon: 'el-icon-notebook-2' }
-      },
-      {
-        path: '/note/edit',
-        name: '写笔记',
-        component: () => import('@/views/note/edit'),
-        meta: { title: '写笔记', icon: 'el-icon-edit-outline' }
       }
     ]
   },
@@ -123,12 +101,14 @@ export const constantRoutes = [
     path: '/task',
     component: Layout,
     redirect: '/task',
-    children: [{
-      path: 'index',
-      name: '任务',
-      component: () => import('@/views/task/index'),
-      meta: { title: '任务', icon: 'task' }
-    }]
+    children: [
+      {
+        path: 'index',
+        name: '任务',
+        component: () => import('@/views/task/index'),
+        meta: { title: '任务', icon: 'task' }
+      }
+    ]
   },
   {
     path: '/setting',
@@ -139,9 +119,9 @@ export const constantRoutes = [
     children: [
       {
         path: '/setting/blog',
-        name: '博客设置',
+        name: '个人设置',
         component: () => import('@/views/setting/manager'),
-        meta: { title: '博客设置', icon: 'el-icon-setting' }
+        meta: { title: '个人设置', icon: 'el-icon-setting' }
       },
       {
         path: '/setting/personal',
@@ -151,14 +131,39 @@ export const constantRoutes = [
       }
     ]
   }
-
 ]
+export const noteRoutes =
+  {
+    path: '/note',
+    component: Layout,
+    redirect: '/note/index',
+    name: '笔记',
+    meta: {
+      title: '笔记',
+      icon: 'form'
+    },
+    children: [
+      {
+        path: '/note/list',
+        name: '笔记列表',
+        component: () => import('@/views/note/list'),
+        meta: { title: '笔记列表', icon: 'el-icon-notebook-2' }
+      },
+      {
+        path: '/note/edit',
+        name: '写笔记',
+        component: () => import('@/views/note/edit'),
+        meta: { title: '写笔记', icon: 'el-icon-edit-outline' }
+      }
+    ]
+  }
 
 export const asyncRoutes = [
   {
     path: '/user',
     component: Layout,
     redirect: '/user/index',
+    name: '系统管理',
     meta: {
       title: '系统管理',
       icon: 'peoples',
@@ -169,23 +174,29 @@ export const asyncRoutes = [
         path: '/user/index',
         name: '用户管理',
         component: () => import('@/views/user/list'),
-        meta: { title: '用户管理', icon: 'people', roles: ['admin'] // you can set roles in root nav
+        meta: {
+          title: '用户管理',
+          icon: 'people',
+          roles: ['admin'] // you can set roles in root nav
         }
       },
       {
         path: '/log/index',
         name: '日志监控',
         component: () => import('@/views/log/logList'),
-        meta: { title: '日志监控', icon: 'el-icon-document', roles: ['admin'] // you can set roles in root nav
+        meta: {
+          title: '日志监控',
+          icon: 'el-icon-document',
+          roles: ['admin'] // you can set roles in root nav
         }
       }
-    // {
-    //   path: '/user/personal',
-    //   name: '迭代计划',
-    //   component: () => import('@/views/user/plan'),
-    //   meta: { title: '迭代计划', icon: 'guide', roles: ['admin'] // you can set roles in root nav
-    //   }
-    // }
+      // {
+      //   path: '/user/personal',
+      //   name: '迭代计划',
+      //   component: () => import('@/views/user/plan'),
+      //   meta: { title: '迭代计划', icon: 'guide', roles: ['admin'] // you can set roles in root nav
+      //   }
+      // }
     ]
   },
   // 404 page must be placed at the end !!!
@@ -193,11 +204,12 @@ export const asyncRoutes = [
   { path: '*', redirect: '/404', hidden: true }
 ]
 
-const createRouter = () => new Router({
-  // mode: 'history', // require service support
-  scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
-})
+const createRouter = () =>
+  new Router({
+    // mode: 'history', // require service support
+    scrollBehavior: () => ({ y: 0 }),
+    routes: constantRoutes
+  })
 
 const router = createRouter()
 

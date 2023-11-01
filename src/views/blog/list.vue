@@ -9,26 +9,20 @@
             <el-radio-button label="发布" />
             <el-radio-button label="草稿" />
           </el-radio-group>
-          <el-date-picker
-            v-model="listQuery.createTime"
-            class="margin-l10"
-            align="right"
-            type="date"
-            placeholder="选择日期"
-            :picker-options="pickerOptions"
-            @change="getArticleList"
-          />
-          <!-- <el-select v-model="listQuery.categoryId" placeholder="请选择分类" clearable class="margin-l10" @change="getArticleList">
-            <el-option
-              v-for="item in categoryOptions"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            />
-          </el-select> -->
+          <el-date-picker v-model="listQuery.createTime" class="margin-l10" align="right" type="date" placeholder="选择日期" :picker-options="pickerOptions" @change="getArticleList" />
           <el-select ref="select" v-model="categoryName" placeholder="请选择分类" clearable class="margin-l10" @clear="handleSelectClear" @remove-tag="handleRemoveTag">
             <el-option class="custom-tree" value="">
-              <el-tree ref="tree" :data="categoryOptions" node-key="id" :props="defaultProps" highlight-current :expand-on-click-node="false" empty-text="暂无数据" v-on="$listeners" @node-click="handleNodeClick" />
+              <el-tree
+                ref="tree"
+                :data="categoryOptions"
+                node-key="id"
+                :props="defaultProps"
+                highlight-current
+                :expand-on-click-node="false"
+                empty-text="暂无数据"
+                v-on="$listeners"
+                @node-click="handleNodeClick"
+              />
             </el-option>
           </el-select>
           <el-input v-model="listQuery.title" class="margin-l10" style="width:15%;" placeholder="请输入标题搜索">
@@ -79,12 +73,7 @@
       </el-table-column>
       <el-table-column class-name="image-col" label="封面" width="210" style="padding:0">
         <template slot-scope="{row}">
-          <el-image
-            v-if="row.coverUrl"
-            style="vertical-align: middle;width: 50px; height: 50px;"
-            :src="row.coverUrl"
-            :preview-src-list="coverList"
-          />
+          <el-image v-if="row.coverUrl" style="vertical-align: middle;width: 50px; height: 50px;" :src="row.coverUrl" :preview-src-list="coverList" />
         </template>
       </el-table-column>
 
@@ -118,9 +107,9 @@ export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        '1': 'success',
-        '2': 'info',
-        '0': 'danger'
+        1: 'success',
+        2: 'info',
+        0: 'danger'
       }
       return statusMap[status]
     }
@@ -144,26 +133,30 @@ export default {
         disabledDate(time) {
           return time.getTime() > Date.now()
         },
-        shortcuts: [{
-          text: '今天',
-          onClick(picker) {
-            picker.$emit('pick', new Date())
+        shortcuts: [
+          {
+            text: '今天',
+            onClick(picker) {
+              picker.$emit('pick', new Date())
+            }
+          },
+          {
+            text: '昨天',
+            onClick(picker) {
+              const date = new Date()
+              date.setTime(date.getTime() - 3600 * 1000 * 24)
+              picker.$emit('pick', date)
+            }
+          },
+          {
+            text: '一周前',
+            onClick(picker) {
+              const date = new Date()
+              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
+              picker.$emit('pick', date)
+            }
           }
-        }, {
-          text: '昨天',
-          onClick(picker) {
-            const date = new Date()
-            date.setTime(date.getTime() - 3600 * 1000 * 24)
-            picker.$emit('pick', date)
-          }
-        }, {
-          text: '一周前',
-          onClick(picker) {
-            const date = new Date()
-            date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
-            picker.$emit('pick', date)
-          }
-        }]
+        ]
       },
       categoryOptions: [],
       defaultProps: {
@@ -179,7 +172,9 @@ export default {
   },
   methods: {
     indexAdd(index) {
-      return index + 1 + (this.listQuery.pageIndex - 1) * this.listQuery.pageSize
+      return (
+        index + 1 + (this.listQuery.pageIndex - 1) * this.listQuery.pageSize
+      )
     },
     parseTime(time, format) {
       return parseTime(time, format)
@@ -189,16 +184,24 @@ export default {
     getArticleList() {
       const _this = this
       _this.listLoading = true
-      _this.listQuery.status = _this.stateType === '全部' ? null : (_this.stateType === '发布' ? 1 : 2)
-      _this.listQuery.createTime = _this.parseTime(_this.listQuery.createTime, '{y}-{m}-{d}')
+      _this.listQuery.status =
+        _this.stateType === '全部' ? null : _this.stateType === '发布' ? 1 : 2
+      _this.listQuery.createTime = _this.parseTime(
+        _this.listQuery.createTime,
+        '{y}-{m}-{d}'
+      )
       _this.$store
         .dispatch('blog/getArticleList', _this.listQuery)
         .then(function(response) {
-          if (response != null && response.code === 200 && response.data.records != null) {
+          if (
+            response != null &&
+            response.code === 200 &&
+            response.data.records != null
+          ) {
             _this.articleList = response.data.records
             _this.total = response.data.total
             // 将coverUrl属性取出来组成新数组
-            _this.articleList.forEach(item => {
+            _this.articleList.forEach((item) => {
               if (item.coverUrl) {
                 _this.coverList.push(item.coverUrl)
               }
@@ -208,7 +211,11 @@ export default {
           }
         })
         .catch(function(error) {
-          _this.$message({ message: error.msg || 'Has Error', type: 'error', showClose: true })
+          _this.$message({
+            message: error.msg || 'Has Error',
+            type: 'error',
+            showClose: true
+          })
         })
       _this.listLoading = false
     },
@@ -219,7 +226,11 @@ export default {
       _this.$store
         .dispatch('blog/getCategoryList')
         .then(function(response) {
-          if (response != null && response.code === 200 && response.data.length > 0) {
+          if (
+            response != null &&
+            response.code === 200 &&
+            response.data.length > 0
+          ) {
             _this.categoryOptions = response.data
           } else {
             _this.categoryOptions = []
@@ -227,7 +238,11 @@ export default {
           _this.listLoading = false
         })
         .catch(function(error) {
-          _this.$message({ message: error.msg || 'Has Error', type: 'error', showClose: true })
+          _this.$message({
+            message: error.msg || 'Has Error',
+            type: 'error',
+            showClose: true
+          })
           _this.listLoading = false
         })
     },
@@ -245,22 +260,42 @@ export default {
         const _this = this
         _this.isLoading = true
 
-        _this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' })
+        _this
+          .$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          })
           .then(() => {
             _this.$store
               .dispatch('blog/deleteArticle', list)
               .then(function(response) {
-                if (response != null && response.code === 200 && response.data.length > 0) {
-                  _this.$message({ message: '操作成功', type: 'success', showClose: true })
+                if (
+                  response != null &&
+                  response.code === 200 &&
+                  response.data.length > 0
+                ) {
+                  _this.$message({
+                    message: '操作成功',
+                    type: 'success',
+                    showClose: true
+                  })
                   _this.getArticleList()
                 }
               })
               .catch(function(error) {
-                _this.$message({ message: error.msg || 'Has Error', type: 'error', showClose: true })
+                _this.$message({
+                  message: error.msg || 'Has Error',
+                  type: 'error',
+                  showClose: true
+                })
                 _this.isLoading = false
               })
           })
-          .catch(() => { this.$message({ type: 'info', message: '已取消删除' }); _this.isLoading = false })
+          .catch(() => {
+            this.$message({ type: 'info', message: '已取消删除' })
+            _this.isLoading = false
+          })
       }
     },
     // 打开预览视图
@@ -271,17 +306,29 @@ export default {
       _this.$store
         .dispatch('blog/getArticleById', parameters)
         .then(function(response) {
-          if (response != null && response.code === 200 && response.data != null) {
+          if (
+            response != null &&
+            response.code === 200 &&
+            response.data != null
+          ) {
             const postForm = response.data
-            postForm.tagIds = response.data.tags.map(item => item.id)
+            postForm.tagIds = response.data.tags.map((item) => item.id)
             _this.$refs.viewForm.show(postForm)
           } else {
-            _this.$message({ message: '找不到博客信息', type: 'error', showClose: true })
+            _this.$message({
+              message: '找不到博客信息',
+              type: 'error',
+              showClose: true
+            })
           }
         })
         .catch(function(error) {
           console.log(error)
-          _this.$message({ message: error.msg || 'Has Error', type: 'error', showClose: true })
+          _this.$message({
+            message: error.msg || 'Has Error',
+            type: 'error',
+            showClose: true
+          })
         })
     },
     hiddenPopper() {
@@ -303,7 +350,7 @@ export default {
     },
 
     handleRemoveTag(value) {
-      const fileterValue = this.value.filter(item => item !== value)
+      const fileterValue = this.value.filter((item) => item !== value)
       this.$emit('input', fileterValue)
     }
   }
@@ -328,6 +375,6 @@ export default {
 }
 ::v-deep .image-col {
   text-align: center;
-  padding:0
+  padding: 0;
 }
 </style>

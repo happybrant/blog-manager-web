@@ -16,23 +16,10 @@
         <a href="javascript:void(0);">摘要：</a>
         {{ description }}
       </aside>
-      <mavon-editor
-        class="markdown"
-        :value="content"
-        :subfield="false"
-        :ishljs="true"
-        default-open="preview"
-        :toolbars-flag="false"
-        :editable="false"
-        :scroll-style="true"
-      />
+      <mavon-editor class="markdown" :value="content" :subfield="false" :ishljs="true" default-open="preview" :toolbars-flag="false" :editable="false" :scroll-style="true" />
       <div class="tag-box">
         <div class="tag-wrap clearfix">
-          <span
-            v-for="tag in tags"
-            :key="tag"
-            class="tag l"
-          >{{ tag }}</span>
+          <span v-for="tag in tags" :key="tag" class="tag l">{{ tag }}</span>
         </div>
       </div>
     </div>
@@ -56,7 +43,6 @@ export default {
       createTime: '', // 发布时间
       description: '', // 摘要
       tags: []
-
     }
   },
   methods: {
@@ -69,7 +55,7 @@ export default {
         this.categoryName = data.categoryName
         this.createTime = this.parseTime(data.createTime)
         this.description = data.description
-        this.tags = data.tags.map(x => x.name)
+        this.tags = data.tags.map((x) => x.name)
       }
     },
     parseTime(time) {
@@ -84,62 +70,62 @@ export default {
 }
 </script>
 <style scoped>
-.detail-title-wrap{
+.detail-title-wrap {
   margin-bottom: 20px;
 }
 .detail-title-wrap .detail-title {
-    font-size: 32px;
-    color: #1c1f21;
-    line-height: 40px;
-    margin: 8px 0;
-    word-wrap: break-word;
-    word-break: break-all;
+  font-size: 32px;
+  color: #1c1f21;
+  line-height: 40px;
+  margin: 8px 0;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 .detail-title-wrap .dc-profile {
-    font-size: 12px;
-    color: #9199a1;
-    line-height: 24px;
+  font-size: 12px;
+  color: #9199a1;
+  line-height: 24px;
 }
 .r {
-    float: right;
+  float: right;
 }
 .l {
-    float: left;
+  float: left;
 }
 .detail-title-wrap .dc-profile span {
-    vertical-align: middle;
+  vertical-align: middle;
 }
- .detail-title-wrap .dc-profile .spacer {
-    margin-right: 24px;
+.detail-title-wrap .dc-profile .spacer {
+  margin-right: 24px;
 }
 
-::v-deep .el-dialog__body{
+::v-deep .el-dialog__body {
   padding: 10px 30px;
 }
 .toastui-editor-md-preview {
-    overflow: auto;
-    padding: 0 15px;
-    height: 100%;
+  overflow: auto;
+  padding: 0 15px;
+  height: 100%;
 }
-::v-deep aside{
+::v-deep aside {
   font-size: 14px;
   padding: 8px 24px 8px 8px;
 }
 .tag-box {
-    margin-top: 30px;
-    width: 100%;
+  margin-top: 30px;
+  width: 100%;
 }
 .tag-box .tag-wrap {
-    display: inline-block;
+  display: inline-block;
 }
 .tag-box .tag {
-    display: inline-block;
-    margin-right: 12px;
-    padding: 4px 12px;
-    background: rgba(84,92,99,.1);
-    border-radius: 12px;
-    font-size: 12px;
-    color: #545c63;
-    line-height: 16px;
+  display: inline-block;
+  margin-right: 12px;
+  padding: 4px 12px;
+  background: rgba(84, 92, 99, 0.1);
+  border-radius: 12px;
+  font-size: 12px;
+  color: #545c63;
+  line-height: 16px;
 }
 </style>

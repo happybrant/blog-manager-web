@@ -8,7 +8,7 @@
               <i slot="prefix" class="el-input__icon el-icon-search cursor-pointer" />
             </el-input>
           </div>
-          <section style="height:550px;overflow:auto">
+          <section style="height:570px;overflow:auto">
             <ul v-if="noteList.length > 0" class="note-list">
               <li
                 v-for="(item,index) of noteList"
@@ -19,6 +19,7 @@
                 <label>
                   <div class="file-icon-wrap">
                     <span class="file-icon">
+                      <svg-icon v-if="item.topFlag" icon-class="top" />
                       <svg-icon icon-class="file-markdown-fill" />
                     </span>
                   </div>
@@ -37,6 +38,7 @@
                       <router-link :to="{path:'/note/edit',query:{id:item.id}}" style="text-decoration:none">
                         <el-dropdown-item>编辑</el-dropdown-item>
                       </router-link>
+                      <el-dropdown-item @click.native="btnTop_Click(item.id, item.topFlag)">{{ item.topFlag?'取消置顶':'置顶' }}</el-dropdown-item>
                       <el-dropdown-item divided @click.native="btnDelete_Click(item.id)">删除</el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
@@ -46,11 +48,11 @@
             <el-empty v-else description="暂无数据" />
 
           </section>
-          <pagination v-show="total>0" :total="total" :page.sync="listQuery.pageIndex" :limit.sync="listQuery.pageSize" @pagination="getNoteListPager" />
+          <pagination v-show="total > 0" layout="total, prev, pager, next" :pager-count="5" :total="total" :page.sync="listQuery.pageIndex" :limit.sync="listQuery.pageSize" @pagination="getNoteListPager" />
         </el-card>
       </el-col>
       <el-col :span="16" class="detail">
-        <el-card v-if="noteList.length > 0" class="box-card">
+        <el-card v-if="noteList.length > 0" class="box-card" shadow="never">
           <div slot="header" class="clearfix">
             <div class="title">
               <span v-html="selectedTitle" />
@@ -130,6 +132,10 @@ export default {
     },
     getNoteListPager() {
       const _this = this
+      const path = _this.$route.path
+      const index = path.lastIndexOf('/')
+      const code = path.substr(index + 1)
+      _this.listQuery.code = code
       _this.listLoading = true
       _this.$store
         .dispatch('note/getNoteListPager', _this.listQuery)
@@ -176,6 +182,29 @@ export default {
             .catch(function(error) {
               _this.$message({ message: error.msg || 'Has Error', type: 'error', showClose: true })
             })
+        })
+    },
+    // 置顶操作
+    btnTop_Click(id, topFlag) {
+      const _this = this
+      var parameters = {}
+      parameters.id = id
+      parameters.topFlag = !topFlag
+      _this.$store
+        .dispatch('note/updateNote', parameters)
+        .then(function(response) {
+          console.log(response)
+          if (response != null && response.code === 200) {
+            _this.listQuery.pageIndex = 1
+            _this.getNoteListPager()
+            _this.$message({ message: '操作成功', type: 'success', showClose: true })
+          } else {
+            _this.$message({ message: response == null || response.message == null ||
+            response.message === '' ? '操作失败' : response.message, type: 'error', showClose: true })
+          }
+        })
+        .catch(function(error) {
+          _this.$message({ message: error.msg || 'Has Error', type: 'error', showClose: true })
         })
     },
     toggleScreenHeight() {
@@ -237,7 +266,7 @@ li.selected {
     padding: 10px;
 }
 ::v-deep .detail .el-card__body {
-    padding: 0px;
+    padding: 0 0 20px 0;
 }
 .file-name-wrap {
     flex: 1;

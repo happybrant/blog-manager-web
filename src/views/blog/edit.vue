@@ -4,7 +4,7 @@
       <sticky :z-index="10" :class-name="'sub-navbar ' + publishStatus">
         <CategoryDropdown v-model="postForm.categoryId" required />
         <TagDropdown v-model="postForm.tagIds" style="margin-left: 10px;" />
-        <el-button type="primary" style="margin-left: 10px;" @click="openUploadDialog">封面
+        <el-button type="info" style="margin-left: 10px;" @click="openUploadDialog">封面
           <i v-if="postForm.coverUrl" class="el-icon-success el-icon--right" title="已上传" />
           <i v-else class="el-icon-warning el-icon--right" title="未上传" />
         </el-button>
@@ -249,7 +249,7 @@ export default {
   position: relative;
 
   .createPost-main-container {
-    padding: 40px 45px 20px 30px;
+    padding: 40px 30px 20px 30px;
 
     .postInfo-container {
       position: relative;

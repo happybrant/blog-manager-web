@@ -68,7 +68,6 @@ export default {
   },
   methods: {
     addPlan() {
-      console.log('哈哈哈')
       this.$refs.editForm.show()
     }
 
