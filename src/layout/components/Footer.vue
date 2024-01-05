@@ -1,6 +1,6 @@
 <template>
   <div class="indexlayout-right-footer">
-    <div class="footer-copyright">Copyright © 2022 江南入直</div>
+    <div class="footer-copyright">Copyright © {{ new Date().getFullYear() }} 江南入直</div>
   </div>
 </template>
 <script>

@@ -161,7 +161,7 @@ export default {
     getUserListPager() {
       const _this = this
       _this.listLoading = true
-      _this.listQuery.status = _this.stateType === '全部' ? null : (_this.stateType === '发布' ? 1 : 2)
+      _this.listQuery.status = _this.stateType === '全部' ? null : (_this.stateType === '有效' ? 1 : 2)
       _this.listQuery.type = _this.type === '全部' ? null : (_this.type === '管理员' ? 1 : 2)
 
       _this.$store

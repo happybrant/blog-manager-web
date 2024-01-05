@@ -36,7 +36,7 @@
           </el-col>
         </el-row>
 
-        <el-form-item prop="originContent" style="margin-bottom: 30px;">
+        <el-form-item prop="originContent" style="margin-bottom: 0px;">
           <div class="editor-container">
             <el-tag class="tag-title">
               笔记内容:
@@ -57,7 +57,7 @@
               ref="md"
               v-model="postForm.originContent"
               :ishljs="true"
-              :style="{ height: height}"
+              :style="style"
               class="markdown"
               @imgAdd="$imgAdd"
               @imgDel="$imgDel"
@@ -104,7 +104,11 @@ export default {
       selectedId: '',
       publishStatus: 'draft',
       imgFile: [],
-      height: '540px',
+      style: {
+        'height': '530px',
+        'padding-bottom': '20px'
+      },
+
       timeID: null,
       tip: '',
       categoryList: [],
@@ -235,6 +239,8 @@ export default {
       let path = 'note/addNote'
       if (_this.selectedId) {
         path = 'note/updateNote'
+        // 清空更新时间，避免影响后台更新
+        _this.postForm.lastUpdateTime = null
       }
       _this.$store
         .dispatch(path, _this.postForm)

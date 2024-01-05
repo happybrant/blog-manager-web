@@ -25,7 +25,7 @@
                   </div>
                   <span class="file-name-wrap" v-html="item.title " />
                   <span class="file-date">
-                    {{ parseTime(item.createTime) }}
+                    {{ parseTime(item.lastUpdateTime) }}
                   </span>
                   <el-dropdown trigger="click">
                     <span class="el-dropdown-link file-more">
@@ -56,6 +56,9 @@
           <div slot="header" class="clearfix">
             <div class="title">
               <span v-html="selectedTitle" />
+              <span class="status-text">
+                <span style="margin-left:3px">创建于{{ selectedCreateTime }} </span>
+              </span>
               <div class="btn-wrap">
                 <router-link :to="{path:'/note/edit',query:{id:selectedId}}" style="text-decoration:none">
                   <el-button type="primary" icon="el-icon-edit">
@@ -108,6 +111,7 @@ export default {
       selectedId: '',
       selectedContent: '',
       selectedTitle: '',
+      selectedCreateTime: '',
       toolbarsObj: {
         navigation: true, // 导航
         fullscreen: true, // 全屏编辑
@@ -129,6 +133,7 @@ export default {
       this.selectedId = note.id
       this.selectedTitle = note.title
       this.selectedContent = note.originContent
+      this.selectedCreateTime = note.createTime
     },
     getNoteListPager() {
       const _this = this
@@ -146,6 +151,7 @@ export default {
             _this.selectedId = _this.noteList[0].id
             _this.selectedTitle = _this.noteList[0].title
             _this.selectedContent = _this.noteList[0].originContent
+            _this.selectedCreateTime = _this.noteList[0].createTime
           } else {
             _this.noteList = []
             _this.total = 0
@@ -332,5 +338,13 @@ li:hover .file-date {
   line-height: 650px;
   font-size: 20px;
   color: #999;
+}
+.status-text {
+  margin-left:10px;
+  font-size: 14px;
+  color: #a9b2c2;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 </style>
