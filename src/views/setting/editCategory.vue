@@ -62,6 +62,7 @@ export default {
       // 字段初始化
       this.dialogFormVisible = true
       this.isParentShow = false
+      this.form.id = ''
       this.form.name = ''
       this.form.description = ''
       this.form.order = ''
@@ -134,7 +135,7 @@ export default {
             parameters.order = _this.form.order
             parameters.parentId = _this.form.parentCategory
 
-            if (_this.form.id != null) {
+            if (_this.form.id) {
               parameters.id = _this.form.id
             }
 
