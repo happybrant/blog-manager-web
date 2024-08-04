@@ -8,7 +8,7 @@
               <i slot="prefix" class="el-input__icon el-icon-search cursor-pointer" />
             </el-input>
           </div>
-          <section style="height:570px;overflow:auto">
+          <section>
             <ul v-if="noteList.length > 0" class="note-list">
               <li
                 v-for="(item,index) of noteList"
@@ -46,7 +46,6 @@
               </li>
             </ul>
             <el-empty v-else description="暂无数据" />
-
           </section>
           <pagination v-show="total > 0" layout="total, prev, pager, next" :pager-count="5" :total="total" :page.sync="listQuery.pageIndex" :limit.sync="listQuery.pageSize" @pagination="getNoteListPager" />
         </el-card>
@@ -90,8 +89,9 @@
 </template>
 
 <script>
+// Secondary package based on el-pagination
+import Pagination from '@/components/Pagination'
 import { parseTime } from '@/utils/index'
-import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import 'mavon-editor/dist/css/index.css'
 export default {
 
@@ -117,7 +117,7 @@ export default {
         fullscreen: true, // 全屏编辑
         readmodel: true // 沉浸式阅读
       },
-      height: '714px' // 初始化高度
+      height: '75vh' // 初始化高度
     }
   },
   mounted() {
@@ -270,6 +270,8 @@ li.selected {
 }
 ::v-deep .list .el-card__body {
     padding: 10px;
+    height: 75vh;
+    overflow: auto;
 }
 ::v-deep .detail .el-card__body {
     padding: 0 0 20px 0;

@@ -32,18 +32,19 @@
           <el-input v-model="postForm.description" :rows="1" type="textarea" class="article-textarea" autosize placeholder="请输入内容" />
           <span v-show="contentShortLength" class="word-counter">{{ contentShortLength }}个字</span>
         </el-form-item>
-        <el-form-item prop="originContent" style="margin-bottom: 30px;">
+        <el-form-item prop="originContent">
           <div class="editor-container">
             <!-- <markdown-editor ref="markdownEditor" v-model="postForm.originContent" height="600px" /> -->
             <mavon-editor
               ref="md"
               v-model="postForm.originContent"
               :ishljs="true"
-              style="min-height:500px"
+              :style="style"
               class="markdown"
               @imgAdd="$imgAdd"
               @imgDel="$imgDel"
               @change="$change"
+              @fullScreen="toggleScreenHeight"
             />
           </div>
         </el-form-item>
@@ -55,14 +56,15 @@
 </template>
 
 <script>
-import axios from 'axios'
 import MDinput from '@/components/MDinput'
-import Sticky from '@/components/Sticky' // 粘性header组件
+// 粘性header组件
+import Sticky from '@/components/Sticky'
+import axios from 'axios'
 
 import {
   CategoryDropdown,
-  TagDropdown,
-  CoverUpload
+  CoverUpload,
+  TagDropdown
 } from './components'
 
 const defaultForm = {
@@ -108,7 +110,11 @@ export default {
       },
       selectedId: '',
       publishStatus: 'draft',
-      imgFile: []
+      imgFile: [],
+      style: {
+        'height': '60vh',
+        'padding-bottom': '20px'
+      }
     }
   },
   computed: {
@@ -231,6 +237,13 @@ export default {
                */
         this.$refs.md.$img2Url(pos, data)
       })
+    },
+    toggleScreenHeight() {
+      if (this.style.height === '100%') {
+        this.style.height = '60vh'
+      } else {
+        this.style.height = '100%'
+      }
     },
     $imgDel(pos) {
       delete this.imgFile[pos]

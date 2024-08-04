@@ -75,9 +75,10 @@
 
 <script>
 import MDinput from '@/components/MDinput'
-import axios from 'axios'
-import Sticky from '@/components/Sticky' // 粘性header组件
+// 粘性header组件
+import Sticky from '@/components/Sticky'
 import EditCategoryForm from '@/views/setting/editCategory'
+import axios from 'axios'
 
 const defaultForm = {
   title: '', // 文章题目
@@ -105,7 +106,7 @@ export default {
       publishStatus: 'draft',
       imgFile: [],
       style: {
-        'height': '530px',
+        'height': '60vh',
         'padding-bottom': '20px'
       },
 
@@ -319,10 +320,10 @@ export default {
       delete this.imgFile[pos]
     },
     toggleScreenHeight() {
-      if (this.height === '100%') {
-        this.height = '540px'
+      if (this.style.height === '100%') {
+        this.style.height = '60vh'
       } else {
-        this.height = '100%'
+        this.style.height = '100%'
       }
     },
     openEditCategoryDialog() {

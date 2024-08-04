@@ -136,7 +136,7 @@ export const noteRoutes =
   {
     path: '/note',
     component: Layout,
-    redirect: '/note/index',
+    redirect: '/note/list',
     name: '笔记',
     meta: {
       title: '笔记',
