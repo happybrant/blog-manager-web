@@ -5,12 +5,7 @@
         <!-- <CategoryDropdown v-model="postForm.categoryId" required />
         <TagDropdown v-model="postForm.tagIds" style="margin-left: 10px;" /> -->
         <el-select v-model="postForm.categoryId" placeholder="请选择笔记分类">
-          <el-option
-            v-for="item in categoryList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          />
+          <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
         <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="manualSave">
           立即保存
@@ -22,10 +17,7 @@
         <el-row>
           <aside>
             Markdown 是一种轻量级标记语言，它允许人们使用易读易写的纯文本格式编写文档，Markdown文件的后缀名便是".md"
-            <a
-              href="https://markdown.com.cn/"
-              target="_blank"
-            >Document</a>
+            <a href="https://markdown.com.cn/" target="_blank">Document</a>
           </aside>
           <el-col :span="24">
             <el-form-item style="margin-bottom: 40px;" prop="title">
@@ -46,11 +38,7 @@
               <span style="margin-left:3px" v-text="tip" />
             </span>
             <div style="float:right">
-              <el-switch
-                v-model="postForm.topFlag"
-                active-text="置顶"
-                inactive-text="不置顶"
-              />
+              <el-switch v-model="postForm.topFlag" active-text="置顶" inactive-text="不置顶" />
             </div>
 
             <mavon-editor
@@ -58,6 +46,7 @@
               v-model="postForm.originContent"
               :ishljs="true"
               :style="style"
+              :code-style="codeStyle"
               class="markdown"
               @imgAdd="$imgAdd"
               @imgDel="$imgDel"
@@ -79,7 +68,7 @@ import MDinput from '@/components/MDinput'
 import Sticky from '@/components/Sticky'
 import EditCategoryForm from '@/views/setting/editCategory'
 import axios from 'axios'
-
+import 'markdown-it-vue/dist/markdown-it-vue.css'
 const defaultForm = {
   title: '', // 文章题目
   content: '', // 文章HTML内容
@@ -91,7 +80,10 @@ const defaultForm = {
 export default {
   name: 'MarkdownDemo',
   components: {
-    MDinput, Sticky, EditCategoryForm },
+    MDinput,
+    Sticky,
+    EditCategoryForm
+  },
   props: {
     isEdit: {
       type: Boolean,
@@ -103,17 +95,19 @@ export default {
       postForm: Object.assign({}, defaultForm),
       loading: false,
       selectedId: '',
+      selectedCategoryId: '',
       publishStatus: 'draft',
       imgFile: [],
       style: {
         'height': '60vh',
         'padding-bottom': '20px'
       },
-
+      codeStyle: 'dark',
       timeID: null,
       tip: '',
       categoryList: [],
       topFlag: false
+
     }
   },
   computed: {
@@ -143,6 +137,7 @@ export default {
   },
   mounted() {
     this.selectedId = this.$route.query.id
+    this.selectedCategoryId = this.$route.query.categoryId
     if (this.selectedId) {
       this.publishStatus = 'published'
       this.getNoteById()
@@ -159,7 +154,8 @@ export default {
       if (this.timeID) {
         clearTimeout(this.timeID) //   清除定时器
       }
-      this.timeID = setTimeout(() => { //   定时器
+      this.timeID = setTimeout(() => {
+        //   定时器
         this.tip = '自动保存中...'
         this.submitForm()
       }, 5000) //   操作结束后5秒  发送axios请求
@@ -170,7 +166,11 @@ export default {
         clearTimeout(this.timeID) //   清除定时器
       }
       if (this.postForm.title === '' && this.postForm.content === '') {
-        this.$message({ message: '标题和内容不能全部为空', type: 'warning', showClose: true })
+        this.$message({
+          message: '标题和内容不能全部为空',
+          type: 'warning',
+          showClose: true
+        })
         return
       }
       this.tip = '保存中...'
@@ -189,9 +189,14 @@ export default {
       _this.$store
         .dispatch('note/getNoteById', parameters)
         .then(function(response) {
-          if (response != null && response.code === 200 && response.data != null) {
+          if (
+            response != null &&
+            response.code === 200 &&
+            response.data != null
+          ) {
             _this.postForm = response.data
-            _this.tip = '上次保存于' + response.data.lastUpdateTime.substr(0, 16)
+            _this.tip =
+              '上次保存于' + response.data.lastUpdateTime.substr(0, 16)
           } else {
             _this.postForm = null
           }
@@ -200,7 +205,11 @@ export default {
           })
         })
         .catch(function(error) {
-          _this.$message({ message: error.msg || 'Has Error', type: 'error', showClose: true })
+          _this.$message({
+            message: error.msg || 'Has Error',
+            type: 'error',
+            showClose: true
+          })
         })
     },
     getCategoryList() {
@@ -214,11 +223,15 @@ export default {
             response.data.length > 0
           ) {
             _this.categoryList = response.data
+            if (_this.selectedCategoryId) {
+              _this.postForm.categoryId = _this.selectedCategoryId
+            }
           } else {
             _this.categoryList = []
           }
         })
         .catch(function(error) {
+          console.log(error)
           _this.$message({
             message: error.msg || 'Has Error',
             type: 'error',
@@ -233,7 +246,9 @@ export default {
       }
       if (_this.postForm.categoryId === '') {
         // 设置为默认分类
-        _this.category = _this.categoryList.find(item => item.code === 'default')
+        _this.category = _this.categoryList.find(
+          (item) => item.code === 'default'
+        )
         _this.postForm.categoryId = _this.category.id
       }
       _this.loading = true
@@ -309,10 +324,10 @@ export default {
         const { data } = response
         // 第二步.将返回的url替换到文本原位置![...](0) -> ![...](url)
         /**
-               * $vm 指为mavonEditor实例，可以通过如下两种方式获取
-               * 1. 通过引入对象获取: `import {mavonEditor} from ...` 等方式引入后，`$vm`为`mavonEditor`
-               * 2. 通过$refs获取: html声明ref : `<mavon-editor ref=md ></mavon-editor>，`$vm`为 `this.$refs.md`
-               */
+         * $vm 指为mavonEditor实例，可以通过如下两种方式获取
+         * 1. 通过引入对象获取: `import {mavonEditor} from ...` 等方式引入后，`$vm`为`mavonEditor`
+         * 2. 通过$refs获取: html声明ref : `<mavon-editor ref=md ></mavon-editor>，`$vm`为 `this.$refs.md`
+         */
         this.$refs.md.$img2Url(pos, data)
       })
     },
@@ -377,7 +392,7 @@ export default {
   margin-bottom: 5px;
 }
 .status-text {
-  margin-left:10px;
+  margin-left: 10px;
   color: #a9b2c2;
   overflow: hidden;
   white-space: nowrap;

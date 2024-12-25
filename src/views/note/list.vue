@@ -10,12 +10,7 @@
           </div>
           <section>
             <ul v-if="noteList.length > 0" class="note-list">
-              <li
-                v-for="(item,index) of noteList"
-                :key="index"
-                :class="{selected:isActive === index}"
-                @click="openNote(index, item)"
-              >
+              <li v-for="(item,index) of noteList" :key="index" :class="{selected:isActive === index}" @click="openNote(index, item)">
                 <label>
                   <div class="file-icon-wrap">
                     <span class="file-icon">
@@ -32,7 +27,7 @@
                       <i class="el-icon-arrow-down el-icon--right" />
                     </span>
                     <el-dropdown-menu slot="dropdown">
-                      <router-link :to="{path:'/note/edit'}" style="text-decoration:none">
+                      <router-link :to="{path:'/note/edit',query:{categoryId:item.categoryId}}" style="text-decoration:none">
                         <el-dropdown-item>新建</el-dropdown-item>
                       </router-link>
                       <router-link :to="{path:'/note/edit',query:{id:item.id}}" style="text-decoration:none">
@@ -47,7 +42,15 @@
             </ul>
             <el-empty v-else description="暂无数据" />
           </section>
-          <pagination v-show="total > 0" layout="total, prev, pager, next" :pager-count="5" :total="total" :page.sync="listQuery.pageIndex" :limit.sync="listQuery.pageSize" @pagination="getNoteListPager" />
+          <pagination
+            v-show="total > 0"
+            layout="total, prev, pager, next"
+            :pager-count="5"
+            :total="total"
+            :page.sync="listQuery.pageIndex"
+            :limit.sync="listQuery.pageSize"
+            @pagination="getNoteListPager"
+          />
         </el-card>
       </el-col>
       <el-col :span="16" class="detail">
@@ -94,7 +97,6 @@ import Pagination from '@/components/Pagination'
 import { parseTime } from '@/utils/index'
 import 'mavon-editor/dist/css/index.css'
 export default {
-
   name: 'NoteList',
   components: { Pagination },
   data() {
@@ -124,7 +126,6 @@ export default {
     this.getNoteListPager()
   },
   methods: {
-
     parseTime(time) {
       return parseTime(time, '{y}-{m}-{d} {h}:{i}')
     },
@@ -145,7 +146,11 @@ export default {
       _this.$store
         .dispatch('note/getNoteListPager', _this.listQuery)
         .then(function(response) {
-          if (response != null && response.code === 200 && response.data.records.length > 0) {
+          if (
+            response != null &&
+            response.code === 200 &&
+            response.data.records.length > 0
+          ) {
             _this.noteList = response.data.records
             _this.total = response.data.total
             _this.selectedId = _this.noteList[0].id
@@ -159,7 +164,11 @@ export default {
           _this.listLoading = false
         })
         .catch(function(error) {
-          _this.$message({ message: error.msg || 'Has Error', type: 'error', showClose: true })
+          _this.$message({
+            message: error.msg || 'Has Error',
+            type: 'error',
+            showClose: true
+          })
           _this.listLoading = false
         })
     },
@@ -179,14 +188,31 @@ export default {
             .dispatch('note/deleteNote', parameters)
             .then(function(response) {
               if (response != null && response.code === 200) {
-                _this.$message({ message: '操作成功', type: 'success', showClose: true })
+                _this.$message({
+                  message: '操作成功',
+                  type: 'success',
+                  showClose: true
+                })
                 _this.getNoteListPager()
               } else {
-                _this.$message({ message: response == null || response.message == null || response.message === '' ? '操作失败' : response.message, type: 'error', showClose: true })
+                _this.$message({
+                  message:
+                    response == null ||
+                    response.message == null ||
+                    response.message === ''
+                      ? '操作失败'
+                      : response.message,
+                  type: 'error',
+                  showClose: true
+                })
               }
             })
             .catch(function(error) {
-              _this.$message({ message: error.msg || 'Has Error', type: 'error', showClose: true })
+              _this.$message({
+                message: error.msg || 'Has Error',
+                type: 'error',
+                showClose: true
+              })
             })
         })
     },
@@ -203,14 +229,30 @@ export default {
           if (response != null && response.code === 200) {
             _this.listQuery.pageIndex = 1
             _this.getNoteListPager()
-            _this.$message({ message: '操作成功', type: 'success', showClose: true })
+            _this.$message({
+              message: '操作成功',
+              type: 'success',
+              showClose: true
+            })
           } else {
-            _this.$message({ message: response == null || response.message == null ||
-            response.message === '' ? '操作失败' : response.message, type: 'error', showClose: true })
+            _this.$message({
+              message:
+                response == null ||
+                response.message == null ||
+                response.message === ''
+                  ? '操作失败'
+                  : response.message,
+              type: 'error',
+              showClose: true
+            })
           }
         })
         .catch(function(error) {
-          _this.$message({ message: error.msg || 'Has Error', type: 'error', showClose: true })
+          _this.$message({
+            message: error.msg || 'Has Error',
+            type: 'error',
+            showClose: true
+          })
         })
     },
     toggleScreenHeight() {
@@ -229,120 +271,120 @@ export default {
   width: 100%;
   height: 100%;
 }
- ::v-deep .el-input__inner {
-    border-radius: 24px;
+::v-deep .el-input__inner {
+  border-radius: 24px;
 }
 ::v-deep .el-card__header {
-    padding: 18px 14px;
+  padding: 18px 14px;
 }
 .note-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 .note-list li {
-    position: relative;
-    font-size: 14px;
-    font-weight: 500;
-    border-bottom: 1px solid #ededed;
-    cursor: pointer;
+  position: relative;
+  font-size: 14px;
+  font-weight: 500;
+  border-bottom: 1px solid #ededed;
+  cursor: pointer;
 }
 li:hover:not(.selected) {
-    background: #f4f6f7;
+  background: #f4f6f7;
 }
 li.selected {
-    border-top: 1px solid #ffffff;
-    border-radius: 4px;
-    background-color: #f4f6f7;
+  border-top: 1px solid #ffffff;
+  border-radius: 4px;
+  background-color: #f4f6f7;
 }
 .note-list li label {
-    word-break: break-all;
-    padding: 15px 15px 15px 15px;
-    display: flex;
-    line-height: 1;
-    font-size: 14px;
-    -webkit-transition: color .4s;
-    transition: color .4s;
-    height: 50px;
-    -webkit-align-items: center;
-    align-items: center;
-    position: relative;
+  word-break: break-all;
+  padding: 15px 15px 15px 15px;
+  display: flex;
+  line-height: 1;
+  font-size: 14px;
+  -webkit-transition: color 0.4s;
+  transition: color 0.4s;
+  height: 50px;
+  -webkit-align-items: center;
+  align-items: center;
+  position: relative;
 }
 ::v-deep .list .el-card__body {
-    padding: 10px;
+  padding: 10px;
     height: 75vh;
     overflow: auto;
 }
 ::v-deep .detail .el-card__body {
-    padding: 0 0 20px 0;
+  padding: 0 0 20px 0;
 }
 .file-name-wrap {
-    flex: 1;
-    -webkit-flex: 1;
-    -webkit-align-items: center;
-    align-items: center;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  flex: 1;
+  -webkit-flex: 1;
+  -webkit-align-items: center;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .file-date {
-    margin-left: 10px;
-    display: inline-block;
-    color: #c0c8d6;
-    white-space: nowrap;
+  margin-left: 10px;
+  display: inline-block;
+  color: #c0c8d6;
+  white-space: nowrap;
 }
 .file-more {
-    display: none;
-    cursor: pointer;
-    padding: 2px;
-    border-radius: 4px;
+  display: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
 }
 li:hover .file-more {
-    display: block;
+  display: block;
 }
 li:hover .file-date {
-    display: none;
+  display: none;
 }
 .file-icon-wrap {
-    position: relative;
+  position: relative;
 }
-.file-icon{
-    margin-right: 8px;
-    font-size: 16px;
+.file-icon {
+  margin-right: 8px;
+  font-size: 16px;
 }
-.title{
+.title {
   font-size: 20px;
-    display: flex;
-    -webkit-align-items: center;
-    align-items: center;
-    position: relative;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  position: relative;
 }
-.btn-wrap{
-    display: flex;
-    -webkit-align-items: center;
-    align-items: center;
-    -webkit-flex-shrink: 0;
-    flex-shrink: 0;
-    position: absolute;
-    z-index: 50;
-    right: 0;
+.btn-wrap {
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+  position: absolute;
+  z-index: 50;
+  right: 0;
 }
 .list-empty {
-  height:500px;
+  height: 500px;
   text-align: center;
   line-height: 500px;
   font-size: 20px;
   color: #999;
 }
 .empty {
-   height:650px;
+  height: 650px;
   text-align: center;
   line-height: 650px;
   font-size: 20px;
   color: #999;
 }
 .status-text {
-  margin-left:10px;
+  margin-left: 10px;
   font-size: 14px;
   color: #a9b2c2;
   overflow: hidden;
